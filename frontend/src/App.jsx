@@ -9,6 +9,7 @@ import CTA from "./components/CTA";
 import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
 import CursorBlob from "./components/CursorBlob";
+import SearchPage from "./components/SearchPage";
 
 export default function App() {
   const [theme, setTheme] = useState("dark");
@@ -23,7 +24,7 @@ export default function App() {
   return (
     <>
       <CursorBlob />
-      <Navbar theme={theme} toggleTheme={toggleTheme} />
+      <Navbar toggleTheme={toggleTheme} />
       <Routes>
         <Route
           path="/"
@@ -39,6 +40,7 @@ export default function App() {
         />
         <Route path="/preview/:category" element={<ComponentPreview />} />
         <Route path="/chatbot" element={<Chatbot />} />
+        <Route path="/search" element={<SearchPage />} />
       </Routes>
     </>
   );

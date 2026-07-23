@@ -5,7 +5,7 @@ export default function ComponentsSection() {
   const navigate = useNavigate();
   const trackRef = useRef(null);
 
-  const categories = ["Buttons","Inputs","Cards","Badges","Alerts","Alpinejs", "Loings", "Calendar", "Others"];
+  const categories = ["Buttons","Inputs","Cards","Badges","Alerts","Alpinejs", "Logins", "Calendar", "Others"];
 
   return (
     <section id="components">

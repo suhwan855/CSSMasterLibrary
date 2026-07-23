@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Navbar({ theme, toggleTheme }) {
+export default function Navbar({ toggleTheme }) {
   const navigate = useNavigate();
 
   const scrollToId = (id) =>
@@ -16,6 +16,7 @@ export default function Navbar({ theme, toggleTheme }) {
         <nav className="menu">
           <a href="#features">특징</a>
           <a href="#components">컴포넌트</a>
+          <button className="nav-link-button" onClick={() => navigate("/search")}>검색</button>
           <a className="btn" onClick={() => scrollToId("cta")}>
             바로 쓰기
           </a>

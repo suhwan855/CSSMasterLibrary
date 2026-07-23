@@ -271,7 +271,7 @@ function detectCssFeatures(css = "") {
     side: /(^|\})\s*\.side\s*\{/.test(s),
     top: /(^|\})\s*\.top\s*\{/.test(s),
     front: /(^|\})\s*\.front\s*\{/.test(s),
-    classFirst: (s.match(/\.([A-Za-z_][\w-]*)\s*\{/) || [,""])[1],
+    classFirst: (s.match(/\.([A-Za-z_][\w-]*)\s*\{/) || ["", ""])[1],
   };
 }
 
@@ -475,8 +475,15 @@ function chooseSrcDoc(code = "") {
 
 /* ========= 버튼 존재/품질 필터 ========= */
 // 빠른 사전 필터: 버튼 DOM 흔적이 없으면 렌더 생략
-function hasButtonSignature(html = "") {
-  const re = /<(button)\b|role=["']button["']|class=["'][^"']*\b(btn|button)\b/gi;
+function hasPreviewSignature(html = "", category = "Buttons") {
+  const signatures = {
+    inputs: /<(input|textarea|select)\b|class=["'][^"']*\b(input|field|select)\b/i,
+    cards: /<(article|section)\b|class=["'][^"']*\b(card|panel|tile)\b/i,
+    badges: /class=["'][^"']*\b(badge|chip|tag)\b/i,
+    alerts: /role=["']alert["']|class=["'][^"']*\b(alert|notice|toast)\b/i,
+  };
+  const key = (category || "").toLowerCase();
+  const re = signatures[key] || /<(button|input|textarea|select|article|section|div)\b|role=["']button["']/i;
   return re.test(html || "");
 }
 
@@ -490,6 +497,7 @@ export default function IframePreview({
   minHeight = 24,         // 버튼 최소 높이(px)
   minStyledSignals = 1,   // 스타일 신호 최소 개수
   onDecide,               // 통과/실패 부모 통지
+  category = "Buttons",
 }) {
   const iframeRef = useRef(null);
   const [height, setHeight] = useState(fixedHeight);
@@ -498,7 +506,7 @@ export default function IframePreview({
   const srcDoc = useMemo(() => chooseSrcDoc(code || ""), [code]);
 
   // 1) 사전 필터: 버튼 흔적 자체가 없으면 렌더 X
-  const prefilterOK = useMemo(() => hasButtonSignature(srcDoc), [srcDoc]);
+  const prefilterOK = useMemo(() => hasPreviewSignature(srcDoc, category), [srcDoc, category]);
 
   useEffect(() => {
     if (!prefilterOK) {
@@ -518,12 +526,20 @@ export default function IframePreview({
           const style = doc.createElement("style");
           style.textContent = `html,body{overflow:hidden} ._preview-root{overflow:auto; max-height:100%}`;
           doc.head.appendChild(style);
-        } catch {}
+        } catch {
+          // 일부 sandbox 환경에서는 iframe 문서의 head 수정이 제한될 수 있다.
+        }
 
         // 2) 품질 체크
-        const candidates = Array.from(
-          doc.querySelectorAll('button, [role="button"], .button, .btn')
-        );
+        const selectors = {
+          inputs: "input, textarea, select, .input, .field",
+          cards: "article, .card, .panel, .tile",
+          badges: ".badge, .chip, .tag",
+          alerts: '[role="alert"], .alert, .notice, .toast',
+        };
+        const candidates = Array.from(doc.querySelectorAll(
+          selectors[(category || "").toLowerCase()] || 'button, [role="button"], .button, .btn, article, section, input'
+        ));
 
         const isVisible = (node) => {
           const cs = doc.defaultView?.getComputedStyle?.(node);
@@ -608,7 +624,7 @@ export default function IframePreview({
 
     el.addEventListener("load", onLoad);
     return () => el.removeEventListener("load", onLoad);
-  }, [srcDoc, prefilterOK, autoHeight, fixedHeight, maxHeight, minWidth, minHeight, minStyledSignals, onDecide]);
+  }, [srcDoc, prefilterOK, autoHeight, fixedHeight, maxHeight, minWidth, minHeight, minStyledSignals, onDecide, category]);
 
   if (!prefilterOK) return null;
   if (!qualityOK && onDecide) return null;

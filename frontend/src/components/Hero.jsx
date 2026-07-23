@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Hero() {
+  const navigate = useNavigate();
   return (
     <section className="hero">
       <div className="bg-orb"></div>
@@ -13,14 +15,16 @@ export default function Hero() {
             <br />랜딩 템플릿
           </h1>
           <p className="subtitle">
-            유틸리티 + 컴포넌트 + 다크/라이트 테마. 외부 빌드 없이 <span className="kbd">index.html</span> 하나로 쇼케이스 완성.
+            여러 오픈소스에 흩어진 CSS·Tailwind 컴포넌트를 자연어로 검색하고, 격리된 미리보기에서 바로 비교하세요.
           </p>
+          <button className="btn" onClick={() => navigate("/search")}>컴포넌트 검색</button>
+          <a className="btn secondary" href="#components">카테고리 둘러보기</a>
         </div>
         <div className="card ring hover-rise">
           <div className="shimmer" style={{ height: "220px", borderRadius: "12px", marginBottom: "14px" }}></div>
-          <h3 style={{ margin: 0, marginBottom: "6px" }}>바닐라 HTML 기반</h3>
+          <h3 style={{ margin: 0, marginBottom: "6px" }}>검색부터 미리보기까지</h3>
           <p className="muted" style={{ marginBottom: "14px" }}>
-            React, 빌드툴 없이 순수 HTML/CSS/JS. 필요 시 컴포넌트를 복붙해서 사용.
+            키워드와 벡터 유사도를 결합하고, 서로 다른 코드 형식을 iframe 문서로 정규화합니다.
           </p>
           <pre>
             <code>

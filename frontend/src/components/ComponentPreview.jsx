@@ -230,7 +230,8 @@ export default function ComponentPreview() {
 
           const safeCode = decodeEntities(item.code || "");
           // 1차 빠른 정적 컷: 버튼 흔적 + "Button" 텍스트
-          if (!hasButtonSignatureFast(safeCode) || !includesButtonText(safeCode)) return null;
+          if ((category || "").toLowerCase() === "buttons" &&
+              (!hasButtonSignatureFast(safeCode) || !includesButtonText(safeCode))) return null;
 
           const lang = guessLanguage(safeCode);
           const codeOpen = openCodeIds.has(key);
@@ -269,6 +270,7 @@ export default function ComponentPreview() {
               <div className="cmp-preview">
                 <IframePreview
                   code={safeCode}
+                  category={category}
                   maxHeight={10000}
                   onDecide={(ok) => {
                     if (!ok) {
@@ -344,7 +346,7 @@ export default function ComponentPreview() {
             </div>
             <div className="full-body">
               <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,.1)" }}>
-                <IframePreview code={expandedItem._safeCode} maxHeight={20000} />
+                <IframePreview code={expandedItem._safeCode} category={category} maxHeight={20000} />
               </div>
             </div>
           </div>

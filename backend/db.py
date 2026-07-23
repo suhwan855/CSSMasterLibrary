@@ -1,13 +1,11 @@
 # backend/db.py
 import os
 import asyncpg
-from typing import List, Dict
+from typing import List, Dict, Optional
 from dotenv import load_dotenv
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL not set")
+DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("PG_DSN")
 
 _pool: asyncpg.Pool | None = None
 
@@ -20,7 +18,7 @@ PRIMARY_CATEGORIES = [
 
 async def init_pool():
     global _pool
-    if _pool is None:
+    if _pool is None and DATABASE_URL:
         _pool = await asyncpg.create_pool(
             dsn=DATABASE_URL,
             min_size=1,
@@ -134,3 +132,68 @@ async def count_by_category(category: str) -> int:
 
 async def list_by_category(category: str, offset: int, limit: int) -> List[Dict]:
     return await list_by_category_or_others(category, offset, limit)
+
+
+SQL_SEARCH_COMPONENTS = """
+WITH ranked AS (
+  SELECT
+    components_id AS id,
+    components_name AS name,
+    components_author AS author,
+    COALESCE(components_description, '') AS description,
+    COALESCE(components_code, '') AS code,
+    COALESCE(components_category, '') AS category,
+    COALESCE(components_library, '') AS library,
+    COALESCE(components_source_url, '') AS source_url,
+    GREATEST(
+      similarity(LOWER(COALESCE(components_name, '')), LOWER($1)),
+      similarity(LOWER(COALESCE(components_description, '')), LOWER($1))
+    ) AS keyword_score,
+    CASE
+      WHEN $2::text IS NOT NULL AND embedding IS NOT NULL
+      THEN 1 - (embedding <=> $2::vector)
+      ELSE 0
+    END AS vector_score
+  FROM public.components_tbl_test
+  WHERE
+    ($3::text IS NULL OR LOWER(components_category) = LOWER($3))
+    AND ($4::text IS NULL OR LOWER(components_library) = LOWER($4))
+)
+SELECT *,
+  CASE WHEN $2::text IS NULL
+    THEN keyword_score
+    ELSE (vector_score * 0.65) + (keyword_score * 0.35)
+  END AS score
+FROM ranked
+WHERE keyword_score > 0 OR vector_score > 0
+ORDER BY score DESC, id DESC
+OFFSET $5 LIMIT $6;
+"""
+
+
+async def search_components(
+    query: str,
+    embedding: Optional[List[float]],
+    category: Optional[str],
+    library: Optional[str],
+    offset: int,
+    limit: int,
+) -> List[Dict]:
+    """키워드 유사도와 pgvector 코사인 유사도를 결합한 하이브리드 검색."""
+    assert _pool is not None, "Pool not initialized"
+    vector = "[" + ",".join(map(str, embedding)) + "]" if embedding else None
+    async with _pool.acquire() as conn:
+        rows = await conn.fetch(
+            SQL_SEARCH_COMPONENTS,
+            query,
+            vector,
+            category or None,
+            library or None,
+            offset,
+            limit,
+        )
+        return [dict(row) for row in rows]
+
+
+def database_configured() -> bool:
+    return bool(DATABASE_URL)
