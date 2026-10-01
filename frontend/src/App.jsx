@@ -8,7 +8,6 @@ import ComponentPreview from "./components/ComponentPreview";
 import CTA from "./components/CTA";
 import Chatbot from "./components/Chatbot";
 import Footer from "./components/Footer";
-import CursorBlob from "./components/CursorBlob";
 import SearchPage from "./components/SearchPage";
 
 export default function App() {
@@ -23,7 +22,6 @@ export default function App() {
 
   return (
     <>
-      <CursorBlob />
       <Navbar toggleTheme={toggleTheme} />
       <Routes>
         <Route

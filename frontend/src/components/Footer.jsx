@@ -4,9 +4,9 @@ export default function Footer() {
   return (
     <footer>
       <div className="container" style={{ display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
-        <div>© 2025 NeonWave CSS. Made for 현빈.</div>
+        <div>© 2026 CSS Master Library.</div>
         <div className="muted">
-          Press <span className="kbd">T</span> to toggle theme • <span className="kbd">/</span> to focus search (준비중)
+          Curated interface patterns for better products.
         </div>
       </div>
     </footer>

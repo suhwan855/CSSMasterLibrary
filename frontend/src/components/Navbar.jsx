@@ -4,22 +4,18 @@ import { useNavigate } from "react-router-dom";
 export default function Navbar({ toggleTheme }) {
   const navigate = useNavigate();
 
-  const scrollToId = (id) =>
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-
   return (
     <header className="nav">
       <div className="container nav-inner">
-        <a className="logo" href="/">
-          <span className="dot"></span> NeonWave <span className="badge">CSS</span>
+        <a className="logo" href="/" aria-label="CSS Master Library 홈">
+          <span className="brand-mark">C</span>
+          <span>CSS Master</span>
+          <span className="brand-label">Library</span>
         </a>
         <nav className="menu">
-          <a href="#features">특징</a>
-          <a href="#components">컴포넌트</a>
-          <button className="nav-link-button" onClick={() => navigate("/search")}>검색</button>
-          <a className="btn" onClick={() => scrollToId("cta")}>
-            바로 쓰기
-          </a>
+          <a href="#features">소개</a>
+          <a href="#components">카테고리</a>
+          <button className="nav-link-button" onClick={() => navigate("/search")}>UI 검색</button>
           <button
             onClick={() => navigate("/chatbot")}
             style={{
@@ -29,7 +25,7 @@ export default function Navbar({ toggleTheme }) {
               cursor: "pointer",
             }}
           >
-            챗봇
+            AI 도우미
           </button>
           <div
             className="switch"

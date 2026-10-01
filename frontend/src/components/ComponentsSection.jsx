@@ -10,8 +10,13 @@ export default function ComponentsSection() {
   return (
     <section id="components">
       <div className="container">
-        <h2 className="title">컴포넌트 쇼케이스</h2>
-        <p className="subtitle">필요한 것만 복사해서 쓰세요.</p>
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow"><span /> BROWSE BY CATEGORY</span>
+            <h2 className="title">카테고리별로 둘러보기</h2>
+          </div>
+          <p className="subtitle">원하는 유형을 선택해<br />수집된 UI를 비교해 보세요.</p>
+        </div>
         <hr className="divider" />
 
         {/* 가로 스크롤 트랙 */}
@@ -35,13 +40,14 @@ export default function ComponentsSection() {
                 scrollSnapAlign: "start",
               }}
             >
-              <div className="card ring" style={{ height: "100%" }}>
+              <div className="card category-card" style={{ height: "100%" }}>
+                <span className="category-number">{String(categories.indexOf(cat) + 1).padStart(2, "0")}</span>
                 <h3>{cat}</h3>
                 <button
                   className="btn secondary"
                   onClick={() => navigate(`/preview/${cat.toLowerCase()}`)}
                 >
-                  전체 보기
+                  컬렉션 보기 <span aria-hidden="true">→</span>
                 </button>
               </div>
             </div>
